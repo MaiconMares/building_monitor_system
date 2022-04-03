@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <wiringPi.h>
 #include "../inc/json_handler.h"
 #include "../inc/cJSON.h"
 
@@ -48,15 +49,36 @@ void setup_server_from_JSON(
 	distributed_server_ip = cJSON_GetObjectItemCaseSensitive(parsed_json, "ip_servidor_distribuido");
 	distributed_server_port = cJSON_GetObjectItemCaseSensitive(parsed_json, "porta_servidor_distribuido");
 
-
     memcpy(central_serv_ip, central_server_ip->valuestring, 12);
     memcpy(central_serv_port, &central_server_port->valuedouble, 8);
     memcpy(distributed_serv_ip, distributed_server_ip->valuestring, 12);
     memcpy(distributed_serv_port, &distributed_server_port->valuedouble, 8);
 
-
     central_serv_ip[12] = '\0';
     distributed_serv_ip[12] = '\0';
+
+	cJSON *inputs;
+	cJSON *outputs;
+	cJSON *temperature_sensor;
+
+	inputs = cJSON_GetObjectItemCaseSensitive(parsed_json, "inputs");
+	cJSON *input;
+	cJSON_ArrayForEach(input, inputs){
+		cJSON *curr_gpio = cJSON_GetObjectItemCaseSensitive(input, "gpio");
+		int pin_gpio = (int) curr_gpio->valuedouble;
+		if (pin_gpio != 0)
+			pinMode(pin_gpio, INPUT);
+	}
+
+	outputs = cJSON_GetObjectItemCaseSensitive(parsed_json, "outputs");
+	cJSON *output;
+	cJSON_ArrayForEach(output, outputs){
+		cJSON *curr_gpio = cJSON_GetObjectItemCaseSensitive(output, "gpio");
+		int pin_gpio = (int) curr_gpio->valuedouble;
+		if (pin_gpio != 0)
+			pinMode(pin_gpio, OUTPUT);
+	}
+
 	cJSON_Delete(parsed_json);
 }
 
@@ -77,7 +99,6 @@ int get_device_gpio(char *array_key, char *device_tag_value){
             fprintf(stderr, "Error before: %s\n", error_ptr);
         }
     }
-
 
 	devices = cJSON_GetObjectItemCaseSensitive(parsed_json, array_key);
 	cJSON_ArrayForEach(device, devices){

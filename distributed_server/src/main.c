@@ -11,9 +11,12 @@ char distributed_server_ip[13];
 
 int main(int argc, char const *argv[])
 {
+    wiringPiSetupGpio();
     copy_JSON_to_buffer("config_files/configuracao_andar_1.json");
     setup_server_from_JSON(
     central_server_ip, distributed_server_ip, &central_server_port, &distributed_server_port);
+
+    
 
     return 0;
 }
