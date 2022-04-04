@@ -4,6 +4,7 @@
 #include <wiringPi.h>
 #include "../inc/json_handler.h"
 #include "../inc/cJSON.h"
+#include "../inc/device_handler.h"
 
 char *buffer;
 
@@ -26,7 +27,7 @@ void copy_JSON_to_buffer(char *file_path){
 
 void setup_server_from_JSON(
     char *central_serv_ip, char *distributed_serv_ip,
-    double *central_serv_port, double *distributed_serv_port){
+    double *central_serv_port, double *distributed_serv_port, int *dht_pin){
 
 	const cJSON *central_server_ip;
 	const cJSON *central_server_port;
@@ -68,6 +69,26 @@ void setup_server_from_JSON(
 		int pin_gpio = (int) curr_gpio->valuedouble;
 		if (pin_gpio != 0)
 			pinMode(pin_gpio, INPUT);
+
+		if (pin_gpio == 02)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &people_entrance_1floor_handler);
+		else if (pin_gpio == 03)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &people_exit_from_1floor_handler);
+		else if ((pin_gpio == 5) || (pin_gpio == 6) || (pin_gpio == 9) || (pin_gpio == 11))
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &window_handler);
+		else if (pin_gpio == 10)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &main_door_handler);
+		else if (pin_gpio == 13)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &people_entrance_T_handler);
+		else if (pin_gpio == 18)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &people_presence_1floor_handler);
+		else if (pin_gpio == 19)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &people_exit_from_T_handler);
+		else if ((pin_gpio == 23) || (pin_gpio == 24))
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &smoke_handler);
+		else if (pin_gpio == 26)
+			wiringPiISR(pin_gpio, INT_EDGE_RISING, &people_presence_T_handler);
+
 	}
 
 	outputs = cJSON_GetObjectItemCaseSensitive(parsed_json, "outputs");
@@ -77,6 +98,15 @@ void setup_server_from_JSON(
 		int pin_gpio = (int) curr_gpio->valuedouble;
 		if (pin_gpio != 0)
 			pinMode(pin_gpio, OUTPUT);
+	}
+
+	temperature_sensor = cJSON_GetObjectItemCaseSensitive(parsed_json, "sensor_temperatura");
+	cJSON *temp_sensor;
+	cJSON_ArrayForEach(temp_sensor, temperature_sensor){
+		cJSON *curr_gpio = cJSON_GetObjectItemCaseSensitive(temp_sensor, "gpio");
+		int pin_gpio = (int) curr_gpio->valuedouble;
+		if (pin_gpio != 0)
+			memcpy(dht_pin, &pin_gpio, 4);
 	}
 
 	cJSON_Delete(parsed_json);
