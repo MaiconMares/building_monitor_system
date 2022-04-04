@@ -12,7 +12,7 @@ OBJFOLDER := obj/
 
 CC := gcc
 CFLAGS := -W -Wall
-LDFLAGS := -lwiringPi
+LDFLAGS := -lwiringPi -lpthread
 SRCFILES := $(wildcard src/*.c)
 all: $(SRCFILES:src/%.c=obj/%.o)
 	$(CC) $(CFLAGS) obj/*.o $(LDFLAGS) -o bin/bin

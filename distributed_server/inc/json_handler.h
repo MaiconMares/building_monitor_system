@@ -5,10 +5,10 @@
 //It should called before all JSON functions
 void copy_JSON_to_buffer(char *file_path);
 
-//Setup pins and register addresses for servers
+//Setup pins and add interruptions for some of them and capture addresses for servers
 void setup_server_from_JSON(
     char *central_serv_ip, char *distributed_serv_ip,
-    double *central_serv_port, double *distributed_serv_port);
+    double *central_serv_port, double *distributed_serv_port, int *dht_pin);
 
 int get_device_gpio(char *array_key, char *device_tag_value);
 
