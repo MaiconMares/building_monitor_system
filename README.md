@@ -1,6 +1,6 @@
 # building_monitor_system
 
-Aluno: Maicon Lucas Mares
+Aluno: Maicon Lucas Mares<br>
 Matrícula: 180023411
 
 ## Como utilizar
