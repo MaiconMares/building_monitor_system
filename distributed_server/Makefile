@@ -19,7 +19,7 @@ all: $(SRCFILES:src/%.c=obj/%.o)
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< $(LDFLAGS) -o $@ -I./inc
 run: bin/bin
-	bin/bin
+	bin/bin $(FILENAME)
 .PHONY: clean
 clean:
 	rm -rf obj/*
