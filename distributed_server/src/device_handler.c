@@ -3,20 +3,31 @@
 #include <stdint.h>
 #include <string.h>
 #include <wiringPi.h>
+#include "../inc/queue.h"
 #include "../inc/device_handler.h"
 
 // CONSTANTS
 #define MAX_TIMINGS	85
 #define DEBUG 0
 #define WAIT_TIME 2000
+#define EXIT_FROM_T 	 10
+#define ENTRANCE_T 		 20
+#define EXIT_FROM_1FLOOR 30
+#define ENTRANCE_1FLOOR  40
 
 // GLOBAL VARIABLES
-char mode = 'c';      // valid modes are c, f, h
+char mode = 'c';
 
 int data[5] = { 0, 0, 0, 0, 0 };
 float temp_cels = -1;
 float temp_fahr = -1;
 float humidity  = -1;
+
+typedef struct server_info {
+    unsigned short port;
+    char ip_addr[13];
+    int msg_code;
+} server_info;
 
 void window_handler(void){
     printf("Janela aberta!\n");
@@ -39,18 +50,26 @@ void main_door_handler(void){
 }
 
 void people_exit_from_T_handler(void){
+	insert(EXIT_FROM_T);
+
     printf("(Térreo): Pessoa saindo do térreo\n");
 }
 
 void people_entrance_T_handler(void){
+	insert(ENTRANCE_T);
+
     printf("(Térreo): Pessoa entrando no térreo\n");
 }
 
 void people_exit_from_1floor_handler(void){
+	insert(EXIT_FROM_1FLOOR);
+
     printf("(1º Andar): Pessoa saindo do Primeiro Andar\n");
 }
 
 void people_entrance_1floor_handler(void){
+	insert(ENTRANCE_1FLOOR);
+
     printf("(1º Andar): Pessoa entrando no Primeiro Andar\n");
 }
 
@@ -97,11 +116,6 @@ int read_dht_data(int dht_pin, float *dht_temp, float *dht_humidity) {
 		}
 	}
 
-    printf("ok2\n");
-	/*
-	 * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
-	 * print it out if data is good
-	 */
 	if ( (j >= 40) && (data[4] == ( (data[0] + data[1] + data[2] + data[3]) & 0xFF) ) ) {
 		float h = (float)((data[0] << 8) + data[1]) / 10;
 		if ( h > 100 ) {
@@ -119,7 +133,6 @@ int read_dht_data(int dht_pin, float *dht_temp, float *dht_humidity) {
 		humidity = h;
 
         printf("%f\n", temp_cels);
-        printf("ok3\n");
 
         memcpy(dht_humidity, &humidity, 4);
         memcpy(dht_temp, &temp_cels, 4);
