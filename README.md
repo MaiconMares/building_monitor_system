@@ -1,5 +1,8 @@
 # building_monitor_system
 
+Aluno: Maicon Lucas Mares
+Matrícula: 180023411
+
 ## Como utilizar
 - Para evitar erros na ordem das conexões entre sockets é necessário compilar e executar o servidor central. Para isso execute:
 ```bash
